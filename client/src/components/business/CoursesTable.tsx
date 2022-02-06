@@ -6,10 +6,12 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { Course } from "../../redux/interfaces";
-import CustomTextField from "./CustomTextField";
+import CustomTextField from "../base/CustomTextField";
 import { useDispatch } from "react-redux";
 import * as actions from "../../redux/services/userCourses/actions";
-import { editSubjectName } from "../../redux/services/userCourses/reducer";
+import { addCourse, editCourse, removeCourse } from "../../redux/services/userCourses/reducer";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 interface CoursesTableProps {
   yearId: number;
@@ -42,29 +44,57 @@ export default function CoursesTable(props: CoursesTableProps) {
         <TableBody>
           {props.data.map((course) => (
             <TableRow
-              key={course.name + course.grade.toString() + course.credits.toString()}
+              key={course.name + course.grade + course.credits}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
+                <RemoveIcon
+                  fontSize="small"
+                  onClick={() => dispatch(removeCourse(props.yearId, props.semesterId, course.id))}
+                />
                 <CustomTextField
                   type="string"
-                  value={course.name}
-                  setValue={(value) => dispatch(editSubjectName(props.yearId, props.semesterId, course.id, value))}
+                  value={course.name ?? ""}
+                  setValue={(value) => dispatch(editCourse(props.yearId, props.semesterId, course.id, { name: value }))}
                 />
               </TableCell>
-              <TableCell align="right">{course.grade}</TableCell>
               <TableCell align="right">
                 <CustomTextField
                   type="number"
-                  value={course.credits}
-                  setValue={(value) => dispatch(editSubjectName(props.yearId, props.semesterId, course.id, value))}
+                  value={course.grade ?? "-"}
+                  setValue={(value) =>
+                    dispatch(
+                      editCourse(props.yearId, props.semesterId, course.id, {
+                        grade: value !== "" ? Number(value) : null,
+                      })
+                    )
+                  }
+                />
+              </TableCell>
+              <TableCell align="right">
+                <CustomTextField
+                  type="number"
+                  value={course.credits ?? "-"}
+                  setValue={(value) =>
+                    dispatch(
+                      editCourse(props.yearId, props.semesterId, course.id, {
+                        credits: value !== "" ? Number(value) : null,
+                      })
+                    )
+                  }
                 />
               </TableCell>
 
-              <TableCell align="right">{course.credits}</TableCell>
               <TableCell align="right">{course.grade * course.credits}</TableCell>
             </TableRow>
           ))}
+          <TableRow>
+            <TableCell>
+              <span onClick={() => dispatch(addCourse(props.yearId, props.semesterId))}>
+                <AddIcon fontSize="small" />
+              </span>
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>

@@ -1,15 +1,13 @@
 import jwt_decode from "jwt-decode";
 
-export const parseCookie = (str) =>
-  str
-    .split(";")
-    .map((v) => v.split("="))
-    .reduce((acc, v) => {
-      if (v[0]) {
-        acc[decodeURIComponent(v[0] && v[0].trim())] = decodeURIComponent(v[1] && v[1].trim());
-      }
-      return acc;
-    }, {});
+export const serverGet = async (url: string) => {
+  return await fetch(url, {
+    method: "GET",
+    headers: {
+      "Authorization": window.sessionStorage.getItem("auth"),
+    },
+  }).then((response) => response.json());
+};
 
 export const serverPost = async (url: string, body?: string) => {
   return await fetch(url, {
@@ -17,7 +15,7 @@ export const serverPost = async (url: string, body?: string) => {
     body: body,
     headers: {
       "Content-Type": "application/json",
-      "Authentication": window.sessionStorage.getItem("auth"),
+      "Authorization": window.sessionStorage.getItem("auth"),
     },
   }).then((response) => response.json());
 };
@@ -29,7 +27,7 @@ export const authValid = (): boolean => {
   } catch (e: any) {
     return false;
   }
-  console.log(auth);
+
   if (!auth["user"] || !auth["exp"]) {
     return false;
   }

@@ -1,7 +1,7 @@
-import { Action, initialState } from "../../interfaces";
+import { Action } from "../../interfaces";
 import * as actions from "./actions";
 
-export default function userReducer(userState = initialState.user, action: Action) {
+export default function userReducer(userState = {}, action: Action) {
   switch (action.type) {
     case actions.USER_FETCH_DATA:
       return action.payload;

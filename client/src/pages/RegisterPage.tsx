@@ -1,30 +1,50 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import * as React from "react";
 import { useDispatch } from "react-redux";
-import { loginUser, registerUser } from "../redux/services/auth/reducer";
+import { Navigate } from "react-router-dom";
 import * as utils from "../utils";
-import NotFoundPage from "./NotFoundPage";
+import * as userActions from "../redux/services/user/actions";
+import { baseUrl } from "../appConfig";
 
-interface LoginPageState {
+interface RegisterPageState {
   name: string;
   password: string;
   error: string;
+  yearsOfStudy: number;
+  semestersPerYear: number;
+  success: boolean;
 }
 
 export default function RegisterPage() {
   const dispatch = useDispatch();
 
-  const [state, setState] = React.useState<LoginPageState>({
+  const [state, setState] = React.useState<RegisterPageState>({
     name: "",
     password: "",
     error: "",
+    yearsOfStudy: 0,
+    semestersPerYear: 0,
+    success: true,
   });
 
-  const cookie = utils.parseCookie(document.cookie);
-  if (cookie["auth"]) {
-    return <NotFoundPage />;
-  }
-  return (
+  const registerUser = async (name: string, password: string, yearsOfStudy: number, semestersPerYear: number) => {
+    const user = { name, password, yearsOfStudy, semestersPerYear };
+    const response = await fetch(`${baseUrl}/register`, {
+      method: "POST",
+      body: JSON.stringify(user),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => response.json());
+
+    window.sessionStorage.setItem("auth", response["token"]);
+
+    setState((state) => ({ ...state, success: true }));
+  };
+
+  return utils.authValid() ? (
+    <Navigate to="/" />
+  ) : (
     <>
       <Grid
         container
@@ -40,7 +60,7 @@ export default function RegisterPage() {
             margin: "10px 10px",
           }}
         >
-          <Typography variant="h6">Register</Typography>
+          <Typography variant="h6">Inregistrare</Typography>
         </Grid>
         <Grid
           sx={{
@@ -64,11 +84,41 @@ export default function RegisterPage() {
         >
           <TextField
             variant="outlined"
-            label="Password"
+            label="Parola"
             type="password"
             value={state.password}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
               setState((state) => ({ ...state, password: event.target.value }))
+            }
+          />
+        </Grid>
+        <Grid
+          sx={{
+            margin: "10px 10px",
+          }}
+        >
+          <TextField
+            variant="outlined"
+            type="number"
+            label="Ani de studiu"
+            value={state.yearsOfStudy}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setState((state) => ({ ...state, yearsOfStudy: Number(event.target.value) }))
+            }
+          />
+        </Grid>
+        <Grid
+          sx={{
+            margin: "10px 10px",
+          }}
+        >
+          <TextField
+            variant="outlined"
+            type="number"
+            label="Semestre pe an"
+            value={state.semestersPerYear}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setState((state) => ({ ...state, semestersPerYear: Number(event.target.value) }))
             }
           />
         </Grid>
@@ -80,9 +130,9 @@ export default function RegisterPage() {
         >
           <Button
             variant="outlined"
-            onClick={() => dispatch(registerUser(state.name, state.password))}
+            onClick={() => registerUser(state.name, state.password, state.yearsOfStudy, state.semestersPerYear)}
           >
-            Register
+            Inregistrare
           </Button>
         </Grid>
       </Grid>

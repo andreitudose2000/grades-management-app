@@ -49,6 +49,7 @@ export default function CustomTextField(props: CustomTextFieldProps) {
 
   return props.type === "string" ? (
     <TextField
+      fullWidth
       type="text"
       variant="standard"
       aria-label="Field name"
@@ -63,7 +64,8 @@ export default function CustomTextField(props: CustomTextFieldProps) {
     />
   ) : state.isBeingEdited === true ? (
     <TextField
-      type="text"
+      type="number"
+      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
       variant="standard"
       aria-label="Field name"
       value={state.editingValue}

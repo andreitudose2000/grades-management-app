@@ -1,22 +1,21 @@
-import { Action, initialState, State } from "../../interfaces";
+import { Action, Course, initialState, State } from "../../interfaces";
 import * as actions from "./actions";
 import { baseUrl } from "../../../appConfig";
 import { serverPost } from "../../../utils";
-import { cloneDeep } from "lodash";
+import { cloneDeep, last } from "lodash";
 import * as utils from "../../../utils";
 
 interface AddCourseActionPayload {
   yearId: number;
   semesterId: number;
+  course: Course;
 }
 
 interface EditCourseActionPayload {
   yearId: number;
   semesterId: number;
   courseId: number;
-  name?: string;
-  grade?: number;
-  credits?: number;
+  course: Course;
 }
 
 interface RemoveCourseActionPayload {
@@ -25,115 +24,94 @@ interface RemoveCourseActionPayload {
   courseId: number;
 }
 
-export default function userCoursesReducer(state = initialState.userCourses, action: Action) {
+export default function userCoursesReducer(state: typeof initialState.userCourses = { years: [] }, action: Action) {
+  let newState;
+  let course;
+  let semester;
   switch (action.type) {
-    case actions.ADD_SUBJECT:
+    case actions.ADD_COURSE:
       const addPayload = action.payload as AddCourseActionPayload;
-      return {
-        ...state,
-        years: state.years.map((year, yIdx) =>
-          yIdx === addPayload.yearId
-            ? {
-                ...year,
-                semesters: year.semesters.map((semester, sIdx) =>
-                  sIdx === addPayload.semesterId
-                    ? {
-                        ...semester,
-                        courses: semester.courses.concat({
-                          id: semester.courses[semester.courses.length - 1]?.id ?? 0 + 1,
-                          name: "",
-                          grade: null,
-                          credits: null,
-                        }),
-                      }
-                    : { ...semester }
-                ),
-              }
-            : { ...year }
-        ),
-      };
-
-    // case actions.EDIT_SUBJECT:
-    //   const editPayload = action.payload as EditCourseActionPayload;
-    //   return state.map((year, yIdx) =>
-    //     yIdx === editPayload.yearId
-    //       ? {
-    //           ...year,
-    //           semesters: year.semesters.map((semester, sIdx) =>
-    //             sIdx === editPayload.semesterId
-    //               ? {
-    //                   ...semester,
-    //                   courses: semester.courses.map((course) => ({
-    //                     ...course,
-    //                     name: editPayload.name ?? course.name,
-    //                     grade: editPayload.grade ?? course.grade,
-    //                     credits: editPayload.credits ?? course.credits,
-    //                   })),
-    //                 }
-    //               : { ...semester }
-    //           ),
-    //         }
-    //       : { ...year }
-    //   );
-
-    case actions.EDIT_SUBJECT_NAME:
-      console.log(action.payload.name);
-      const editPayload = action.payload as EditCourseActionPayload;
-      let newState = state;
       newState = cloneDeep(state);
-      newState.years
-        .find((y) => y.id === action.payload.yearId)
-        .semesters.find((s) => s.id === action.payload.semesterId)
-        .courses.find((c) => c.id === editPayload.courseId).name = action.payload.name;
+      semester = newState.years
+        .find((y) => y.id === addPayload.yearId)
+        .semesters.find((s) => s.id === addPayload.semesterId);
+      semester.courses.push({ id: last(semester.courses).id + 1, name: null, grade: null, credits: null } as Course);
       return newState;
 
-    case actions.REMOVE_SUBJECT:
-      const removePayload = action.payload as RemoveCourseActionPayload;
-      return {
-        ...state,
-        years: state.years.map((year, yIdx) =>
-          yIdx === removePayload.yearId
-            ? {
-                ...year,
-                semesters: year.semesters.map((semester, sIdx) =>
-                  sIdx === removePayload.semesterId
-                    ? {
-                        ...semester,
-                        courses: semester.courses
-                          .filter((course) => course.id !== removePayload.courseId)
-                          .map((course, idx) => ({ ...course, id: idx + 1 })),
-                      }
-                    : semester
-                ),
-              }
-            : year
-        ),
-      };
+    case actions.EDIT_COURSE:
+      const editPayload = action.payload as EditCourseActionPayload;
+      newState = cloneDeep(state);
+      course = newState.years
+        .find((y) => y.id === editPayload.yearId)
+        .semesters.find((s) => s.id === editPayload.semesterId)
+        .courses.find((c) => c.id === editPayload.courseId);
+      Object.assign(course, editPayload.course);
+      return newState;
 
-    case actions.COURSES_REMOVE_DATA:
-      return [];
+    case actions.REMOVE_COURSE:
+      const removePayload = action.payload as RemoveCourseActionPayload;
+      newState = cloneDeep(state);
+      semester = newState.years
+        .find((y) => y.id === removePayload.yearId)
+        .semesters.find((s) => s.id === removePayload.semesterId);
+      semester.courses.splice(
+        semester.courses.findIndex((c) => c.id === removePayload.courseId),
+        1
+      );
+      return newState;
+
+    case actions.COURSES_FETCH_DATA:
+      return { ...state, years: JSON.parse(action.payload).years };
 
     default:
       return state;
   }
 }
 
-export const editUserCourses = (payload: EditCourseActionPayload) => async (dispatch, getState) => {
-  dispatch({ type: actions.EDIT_SUBJECT_NAME, payload });
-  const response = serverPost(`${baseUrl}/editCourses`, getState().years);
+export const fetchCourses = () => async (dispatch, getState) => {
+  const coursesData = await utils.serverGet(`${baseUrl}/getData`);
+
+  dispatch({
+    type: actions.COURSES_FETCH_DATA,
+    payload: coursesData["grades_json"],
+  });
 };
 
-export const editSubjectName = (yearId, semesterId, courseId, value) => async (dispatch, getState) => {
-  console.log("edited");
+export const addCourse = (yearId, semesterId) => async (dispatch, getState) => {
   dispatch({
-    type: actions.EDIT_SUBJECT_NAME,
+    type: actions.ADD_COURSE,
+    payload: {
+      yearId: yearId,
+      semesterId: semesterId,
+    },
+  });
+
+  const response = await utils.serverPost(`${baseUrl}/postData`, JSON.stringify(getState().userCourses));
+};
+
+export const editCourse = (yearId, semesterId, courseId, course) => async (dispatch, getState) => {
+  dispatch({
+    type: actions.EDIT_COURSE,
     payload: {
       yearId: yearId,
       semesterId: semesterId,
       courseId: courseId,
-      name: value,
+      course: course,
     },
   });
 
-  const response = await utils.serverPost(`${baseUrl}/postData`, JSON.stringify(getState()));
+  const response = await utils.serverPost(`${baseUrl}/postData`, JSON.stringify(getState().userCourses));
+};
+
+export const removeCourse = (yearId, semesterId, courseId) => async (dispatch, getState) => {
+  dispatch({
+    type: actions.REMOVE_COURSE,
+    payload: {
+      yearId: yearId,
+      semesterId: semesterId,
+      courseId: courseId,
+    },
+  });
+
+  const response = await utils.serverPost(`${baseUrl}/postData`, JSON.stringify(getState().userCourses));
 };

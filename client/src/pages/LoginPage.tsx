@@ -1,94 +1,105 @@
-import { Button, Container, Grid, TextField, Typography } from "@mui/material";
-import Box from "@mui/system/Box";
+import { Button, Grid, TextField, Typography } from "@mui/material";
 import * as React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { State, Year } from "../redux/interfaces";
+import { useDispatch } from "react-redux";
+import { Navigate } from "react-router-dom";
 import { baseUrl } from "../appConfig";
 import * as utils from "../utils";
-import NotFoundPage from "./NotFoundPage";
-import { loginUser } from "../redux/services/auth/reducer";
-import { Navigate, useNavigate } from "react-router-dom";
 
 interface LoginPageState {
   name: string;
   password: string;
   error: string;
+  success: boolean;
 }
 
 export default function LoginPage() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [state, setState] = React.useState<LoginPageState>({
     name: "",
     password: "",
     error: "",
+    success: false,
   });
+
+  const loginUser = async (name: string, password: string) => {
+    const user = { name, password };
+    const response = await fetch(`${baseUrl}/login`, {
+      method: "POST",
+      body: JSON.stringify(user),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => response.json());
+
+    window.sessionStorage.setItem("auth", response["token"]);
+
+    //dispatch(fetchCourses());
+
+    setState((state) => ({ ...state, success: true }));
+  };
 
   return utils.authValid() ? (
     <Navigate to="/" />
+  ) : state.success ? (
+    <Navigate to="/my-grades" />
   ) : (
-    <>
+    <Grid
+      container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      style={{ minHeight: "50vh" }}
+    >
       <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-        style={{ minHeight: "50vh" }}
+        item
+        sx={{
+          margin: "10px 10px",
+        }}
       >
-        <Grid
-          item
-          sx={{
-            margin: "10px 10px",
-          }}
-        >
-          <Typography variant="h6">Login</Typography>
-        </Grid>
-        <Grid
-          sx={{
-            margin: "10px 10px",
-          }}
-        >
-          <TextField
-            variant="outlined"
-            label="Username"
-            value={state.name}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              setState((state) => ({ ...state, name: event.target.value }))
-            }
-          />
-        </Grid>
-        <Grid
-          item
-          sx={{
-            margin: "10px 10px",
-          }}
-        >
-          <TextField
-            variant="outlined"
-            label="Password"
-            type="password"
-            value={state.password}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              setState((state) => ({ ...state, password: event.target.value }))
-            }
-          />
-        </Grid>
-        <Grid
-          item
-          sx={{
-            margin: "10px 10px",
-          }}
-        >
-          <Button
-            variant="outlined"
-            onClick={() => dispatch(loginUser(state.name, state.password))}
-          >
-            Login
-          </Button>
-        </Grid>
+        <Typography variant="h6">Login</Typography>
       </Grid>
-    </>
+      <Grid
+        sx={{
+          margin: "10px 10px",
+        }}
+      >
+        <TextField
+          variant="outlined"
+          label="Username"
+          value={state.name}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            setState((state) => ({ ...state, name: event.target.value }))
+          }
+        />
+      </Grid>
+      <Grid
+        item
+        sx={{
+          margin: "10px 10px",
+        }}
+      >
+        <TextField
+          variant="outlined"
+          label="Password"
+          type="password"
+          value={state.password}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            setState((state) => ({ ...state, password: event.target.value }))
+          }
+        />
+      </Grid>
+      <Grid
+        item
+        sx={{
+          margin: "10px 10px",
+        }}
+      >
+        <Button variant="outlined" onClick={() => loginUser(state.name, state.password)}>
+          Login
+        </Button>
+      </Grid>
+    </Grid>
   );
 }
