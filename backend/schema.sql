@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL, 
+    password TEXT NOT NULL,
+    salt TEXT NOT NULL,
+    grades_json TEXT
+)
