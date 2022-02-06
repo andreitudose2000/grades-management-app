@@ -32,17 +32,20 @@ export default function LoginPage() {
       },
     }).then((response) => response.json());
 
+    console.log(response);
+    if (!response["token"]) {
+      return;
+    }
     window.sessionStorage.setItem("auth", response["token"]);
+    setState((state) => ({ ...state, success: true }));
 
     //dispatch(fetchCourses());
-
-    setState((state) => ({ ...state, success: true }));
   };
 
   return utils.authValid() ? (
     <Navigate to="/" />
   ) : state.success ? (
-    <Navigate to="/my-grades" />
+    <Navigate to="/" />
   ) : (
     <Grid
       container

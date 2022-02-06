@@ -24,7 +24,7 @@ export default function RegisterPage() {
     error: "",
     yearsOfStudy: 0,
     semestersPerYear: 0,
-    success: true,
+    success: false,
   });
 
   const registerUser = async (name: string, password: string, yearsOfStudy: number, semestersPerYear: number) => {
@@ -37,13 +37,13 @@ export default function RegisterPage() {
       },
     }).then((response) => response.json());
 
-    window.sessionStorage.setItem("auth", response["token"]);
-
     setState((state) => ({ ...state, success: true }));
   };
 
   return utils.authValid() ? (
     <Navigate to="/" />
+  ) : state.success ? (
+    <Navigate to="/login" />
   ) : (
     <>
       <Grid

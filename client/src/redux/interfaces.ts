@@ -15,6 +15,14 @@ export interface Year {
   semesters: Semester[];
 }
 
+export interface Config {
+  userId: number;
+  userName: string;
+  facultyName: string;
+  domain: string;
+  years: Year[];
+}
+
 export interface State {
   user: User;
   userCourses: {

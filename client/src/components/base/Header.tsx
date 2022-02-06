@@ -25,12 +25,12 @@ export default function Header(props: User) {
                 <Button sx={{ my: 2, color: "white", display: "block" }}>Notele Mele</Button>
               </Link>
             ) : null}
-            <Link to="/browse">
+            {/* <Link to="/browse">
               <Button sx={{ my: 2, color: "white", display: "block" }}>Cauta Cataloage</Button>
-            </Link>
-            <Link to="/feedback">
+            </Link> */}
+            {/* <Link to="/feedback">
               <Button sx={{ my: 2, color: "white", display: "block" }}>Feedback</Button>
-            </Link>
+            </Link> */}
           </Box>
           {utils.authValid() ? (
             <Button color="inherit" onClick={() => dispatch(logoutUser())}>

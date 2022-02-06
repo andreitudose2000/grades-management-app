@@ -35,7 +35,13 @@ export default function userCoursesReducer(state: typeof initialState.userCourse
       semester = newState.years
         .find((y) => y.id === addPayload.yearId)
         .semesters.find((s) => s.id === addPayload.semesterId);
-      semester.courses.push({ id: last(semester.courses).id + 1, name: null, grade: null, credits: null } as Course);
+      const lastId = semester.courses[semester.courses.length - 1]?.id ?? 0;
+      semester.courses.push({
+        id: lastId + 1,
+        name: null,
+        grade: null,
+        credits: null,
+      } as Course);
       return newState;
 
     case actions.EDIT_COURSE:
@@ -63,6 +69,9 @@ export default function userCoursesReducer(state: typeof initialState.userCourse
     case actions.COURSES_FETCH_DATA:
       return { ...state, years: JSON.parse(action.payload).years };
 
+    case actions.COURSES_FETCH_DATA:
+      return { ...state, years: JSON.parse(action.payload).years };
+
     default:
       return state;
   }
@@ -74,6 +83,15 @@ export const fetchCourses = () => async (dispatch, getState) => {
   dispatch({
     type: actions.COURSES_FETCH_DATA,
     payload: coursesData["grades_json"],
+  });
+};
+
+export const fetchConfigs = () => async (dispatch, getState) => {
+  const coursesData = await utils.serverGet(`${baseUrl}/getData`);
+
+  dispatch({
+    type: actions.CONFIGS_FETCH_DATA,
+    payload: coursesData,
   });
 };
 

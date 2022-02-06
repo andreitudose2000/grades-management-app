@@ -5,8 +5,9 @@ import Header from "./components/base/Header";
 import LoginPage from "./pages/LoginPage";
 import MyPage from "./pages/MyPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import PublicConfigPage from "./pages/PublicConfigPage";
+import ConfigPage from "./pages/ConfigPage";
 import RegisterPage from "./pages/RegisterPage";
+import WelcomePage from "./pages/WelcomePage";
 import { State } from "./redux/interfaces";
 
 export default function App() {
@@ -16,8 +17,9 @@ export default function App() {
       <Router>
         <Header {...user} />
         <Routes>
+          <Route path="/" element={<WelcomePage />} />
           <Route path="/my-grades" element={<MyPage />} />
-          <Route path="/browse" element={<PublicConfigPage />} />
+          <Route path="/browse" element={<ConfigPage />} />
           <Route path="/feedback" element={<></>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
