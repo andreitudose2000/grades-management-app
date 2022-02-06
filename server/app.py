@@ -91,7 +91,6 @@ def register():
 def login():
     # validate payload
     errors = {}
-    print("Request: ", request.get_json(), file=sys.stderr)
     if request.json is None:
         return jsonify(error='Lipseste body'), 400
     if 'name' not in request.json:
@@ -124,7 +123,7 @@ def login():
     token = jwt.encode(
         {'user': user['id'], 'exp': datetime.utcnow() + timedelta(minutes=30)}, 
         app.config['SECRET_KEY'])
-    
+
     response = make_response({'message': 'Autentificat cu succes', 'token': token}, 200)
     return response
 
@@ -133,15 +132,47 @@ def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.headers["Authentication"]
+        print("token: ")
+        print(token)
 
         try:
-            jwt.decode(token, app.config['SECRET_KEY'])
+            user_info = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            print(user_info)
+            kwargs['userId'] = user_info['user']
         except:
             return jsonify(message='Token de autentificare lipsa sau invalid'), 401
-        
+
         return f(*args, **kwargs)
     
+    return decorated
 
+
+@app.route('/getData', methods=['GET'])
+@auth_required
+def getData(userId):
+    
+    print(userId, file=sys.stderr)
+    user_data = get_db() \
+        .execute('SELECT grades_json FROM users where id=?',(userId,)) \
+        .fetchone()
+
+    print(user_data)
+    return jsonify(user_data), 200
+
+@app.route('/postData', methods=['POST'])
+@auth_required
+def postData(userId):
+    
+    grades = json.dumps(request.json)
+
+    print(type(request.json), file=sys.stderr)
+
+    get_db().cursor() \
+        .execute('UPDATE users SET grades_json =? where id=?',(grades, userId)) 
+
+    get_db().commit()
+
+    return jsonify(message="OK"), 200
 
 if __name__ == '__main__':
     

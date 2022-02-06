@@ -17,7 +17,9 @@ export interface Year {
 
 export interface State {
   user: User;
-  years: Year[];
+  userCourses: {
+    years: Year[];
+  };
 }
 
 export interface User {
@@ -32,41 +34,43 @@ export const initialState: State = {
     yearsOfStudy: 3,
     semestersPerYear: 2,
   },
-  years: [
-    {
-      id: 1,
-      semesters: [
-        {
-          id: 1,
-          courses: [
-            {
-              id: 1,
-              name: "Curs1",
-              grade: 8,
-              credits: 4,
-            },
-            {
-              id: 1,
-              name: "Curs1",
-              grade: 6,
-              credits: 5,
-            },
-          ],
-        },
-        {
-          id: 2,
-          courses: [
-            {
-              id: 1,
-              name: "Curs2",
-              grade: 6,
-              credits: 5,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+  userCourses: {
+    years: [
+      {
+        id: 1,
+        semesters: [
+          {
+            id: 1,
+            courses: [
+              {
+                id: 1,
+                name: "Curs1",
+                grade: 8,
+                credits: 4,
+              },
+              {
+                id: 2,
+                name: "Curs1.2",
+                grade: 6,
+                credits: 5,
+              },
+            ],
+          },
+          {
+            id: 2,
+            courses: [
+              {
+                id: 1,
+                name: "Curs2",
+                grade: 6,
+                credits: 5,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export interface Action {

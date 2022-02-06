@@ -8,34 +8,29 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { authValid } from "../../utils";
+import * as utils from "../../utils";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../redux/services/auth/reducer";
 
 export default function Header() {
+  const dispatch = useDispatch();
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-            LOGO
-          </IconButton>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Link to="/my-grades">
-              <Button sx={{ my: 2, color: "white", display: "block" }}>Note</Button>
+              <Button sx={{ my: 2, color: "white", display: "block" }}>Notele Mele</Button>
             </Link>
             <Link to="/browse">
-              <Button sx={{ my: 2, color: "white", display: "block" }}>Cauta</Button>
+              <Button sx={{ my: 2, color: "white", display: "block" }}>Cauta Cataloage</Button>
             </Link>
             <Link to="/feedback">
               <Button sx={{ my: 2, color: "white", display: "block" }}>Feedback</Button>
             </Link>
           </Box>
-          {authValid() ? (
-            <Button
-              color="inherit"
-              onClick={() => {
-                window.sessionStorage.removeItem("auth");
-              }}
-            >
+          {utils.authValid() ? (
+            <Button color="inherit" onClick={() => dispatch(logoutUser())}>
               <LogoutIcon />
             </Button>
           ) : (

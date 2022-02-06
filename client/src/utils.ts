@@ -1,4 +1,4 @@
-import jwt_decode, { InvalidTokenError } from "jwt-decode";
+import jwt_decode from "jwt-decode";
 
 export const parseCookie = (str) =>
   str
@@ -17,9 +17,9 @@ export const serverPost = async (url: string, body?: string) => {
     body: body,
     headers: {
       "Content-Type": "application/json",
-      Authentication: window.sessionStorage.getItem("auth"),
+      "Authentication": window.sessionStorage.getItem("auth"),
     },
-  });
+  }).then((response) => response.json());
 };
 
 export const authValid = (): boolean => {

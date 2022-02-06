@@ -9,14 +9,15 @@ import { Course } from "../../redux/interfaces";
 import CustomTextField from "./CustomTextField";
 import { useDispatch } from "react-redux";
 import * as actions from "../../redux/services/userCourses/actions";
+import { editSubjectName } from "../../redux/services/userCourses/reducer";
 
-interface TableProps {
+interface CoursesTableProps {
   yearId: number;
   semesterId: number;
   data: Course[];
 }
 
-export default function CoursesTable(props: TableProps) {
+export default function CoursesTable(props: CoursesTableProps) {
   const columnNames = ["Materie", "Nota", "Credite", "Puncte credit"];
 
   const dispatch = useDispatch();
@@ -48,20 +49,18 @@ export default function CoursesTable(props: TableProps) {
                 <CustomTextField
                   type="string"
                   value={course.name}
-                  setValue={(value) =>
-                    dispatch({
-                      type: actions.EDIT_SUBJECT,
-                      payload: {
-                        yearId: props.yearId,
-                        semesterId: props.semesterId,
-                        courseId: course.id,
-                        name: value,
-                      },
-                    })
-                  }
+                  setValue={(value) => dispatch(editSubjectName(props.yearId, props.semesterId, course.id, value))}
                 />
               </TableCell>
               <TableCell align="right">{course.grade}</TableCell>
+              <TableCell align="right">
+                <CustomTextField
+                  type="number"
+                  value={course.credits}
+                  setValue={(value) => dispatch(editSubjectName(props.yearId, props.semesterId, course.id, value))}
+                />
+              </TableCell>
+
               <TableCell align="right">{course.credits}</TableCell>
               <TableCell align="right">{course.grade * course.credits}</TableCell>
             </TableRow>

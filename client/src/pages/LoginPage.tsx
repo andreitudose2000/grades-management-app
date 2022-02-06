@@ -7,6 +7,7 @@ import { baseUrl } from "../appConfig";
 import * as utils from "../utils";
 import NotFoundPage from "./NotFoundPage";
 import { loginUser } from "../redux/services/auth/reducer";
+import { Navigate, useNavigate } from "react-router-dom";
 
 interface LoginPageState {
   name: string;
@@ -16,6 +17,7 @@ interface LoginPageState {
 
 export default function LoginPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [state, setState] = React.useState<LoginPageState>({
     name: "",
@@ -23,11 +25,9 @@ export default function LoginPage() {
     error: "",
   });
 
-  const cookie = utils.parseCookie(document.cookie);
-  if (cookie["auth"]) {
-    return <NotFoundPage />;
-  }
-  return (
+  return utils.authValid() ? (
+    <Navigate to="/" />
+  ) : (
     <>
       <Grid
         container

@@ -2,9 +2,9 @@ import { combineReducers } from "redux";
 import userReducer from "./services/user/reducer";
 import userCoursesReducer from "./services/userCourses/reducer";
 
-const reducers = combineReducers({
+const rootReducer = combineReducers({
   user: userReducer,
-  years: userCoursesReducer,
+  userCourses: userCoursesReducer,
 });
 
-export default reducers;
+export default rootReducer;

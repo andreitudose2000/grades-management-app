@@ -47,7 +47,7 @@ export default function CustomTextField(props: CustomTextFieldProps) {
     props.setValue(event.target.value);
   };
 
-  return (
+  return props.type === "string" ? (
     <TextField
       type="text"
       variant="standard"
@@ -61,5 +61,30 @@ export default function CustomTextField(props: CustomTextFieldProps) {
       onBlur={onBlur}
       disabled={!state.isEditable}
     />
+  ) : state.isBeingEdited === true ? (
+    <TextField
+      type="text"
+      variant="standard"
+      aria-label="Field name"
+      value={state.editingValue}
+      onChange={onChange}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onBlur={onBlur}
+      disabled={!state.isEditable}
+    />
+  ) : (
+    <div
+      onChange={onChange}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onBlur={onBlur}
+    >
+      {state.editingValue}
+    </div>
   );
 }
