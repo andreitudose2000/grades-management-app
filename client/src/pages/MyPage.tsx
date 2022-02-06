@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { State, Year, Course } from "../redux/interfaces";
 import CoursesTable from "../components/base/CoursesTable";
@@ -15,16 +15,18 @@ const calculateGradeAverage = (courses: Course[]) => {
 };
 
 export default function MyPage() {
-  const years: Year[] = useSelector((state: State) => state.years);
+  const years: Year[] = useSelector((state: State) => state.userCourses.years);
 
   return (
     <>
       {years.map((year) => (
         <>
           <Typography variant="h4">{`Anul ${year.id}`}</Typography>
+
           {year.semesters.map((semester) => (
             <>
-              <Typography variant="h6">{`Semestrul ${semester.id}`}</Typography>
+              <Typography variant="h6" key={semester.id}>{`Semestrul ${semester.id}`}</Typography>
+
               <div className="row">
                 <div className="col-lg-6">
                   <CoursesTable yearId={year.id} semesterId={semester.id} data={semester.courses} />
